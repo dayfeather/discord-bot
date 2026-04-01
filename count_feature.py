@@ -9,9 +9,18 @@ def load_count():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
+
+            changed = False
+
             if "last_user" not in data:
                 data["last_user"] = None
+                changed = True
+
+            if changed:
+                save_count(data)  # ⭐補這行
+
             return data
+
     return {"count": 0, "last_user": None}
 
 def save_count(data):
