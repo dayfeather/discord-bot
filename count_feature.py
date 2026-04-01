@@ -52,11 +52,6 @@ async def handle_count(message, channel_id):
         )
 
         if last_user == user_id:
-            data["count"] = 0
-            data["last_user"] = None
-            save_count(data)
-            print(f"[repeat_blocked] data={data}")
-
             await message.add_reaction("❌")
             await message.channel.send("不能連續數！重來 👊")
             return
