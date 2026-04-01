@@ -2,6 +2,7 @@ import discord
 import json
 import os
 import re
+import asyncio
 
 TOKEN = os.getenv("TOKEN")
 CHANNEL_ID = 1488457090304577627
@@ -72,11 +73,13 @@ async def on_message(message):
         data["count"] = number
         save_count(data)
         await message.add_reaction("✅")
+        await asyncio.sleep(0.1)
     else:
         data["count"] = 0
         save_count(data)
         await message.add_reaction("❌")
         await message.channel.send("敢數錯?咬爆你喔 <a:emoji_R4:1408487451424587897>")
+        await asyncio.sleep(0.1)
 
 # ------------------------
 client.run(TOKEN)
