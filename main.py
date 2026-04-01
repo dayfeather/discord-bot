@@ -72,7 +72,7 @@ async def on_message(message):
             data["count"] = number
             save_count(data)
             await message.add_reaction("✅")
-            await message.channel.send("你很能數是吧! <:1118422552373645322:1412659214446235761>")
+            await message.channel.send("你好棒👍數對了")
 
         else:
             data["count"] = 0
