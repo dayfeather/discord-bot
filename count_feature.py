@@ -53,12 +53,14 @@ async def handle_count(message, channel_id):
 
         if number == expected:
             data["count"] = number
+            data["last_user"] = user_id
             save_count(data)
             await message.add_reaction("✅")
             await message.channel.send("你好棒👍數對了")
 
         else:
             data["count"] = 0
+            data["last_user"] = user_id
             save_count(data)
             await message.add_reaction("❌")
             await message.channel.send("敢數錯?咬爆你喔 <a:emoji_R4:1408487451424587897>")
