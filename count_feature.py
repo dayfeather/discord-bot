@@ -72,3 +72,17 @@ async def handle_count(message, channel_id):
 
             await message.add_reaction("❌")
             await message.channel.send("敢數錯?咬爆你喔 <a:emoji_R4:1408487451424587897>")
+def get_current_count():
+    return data["count"]
+
+async def handle_count_status(message, channel_id):
+    if message.channel.id != channel_id:
+        return False
+
+    content = message.content.strip()
+
+    if content == "!目前":
+        await message.channel.send(f"現在數到 {data['count']}")
+        return True
+
+    return False

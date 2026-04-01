@@ -1,6 +1,6 @@
 import discord
 import os
-from count_feature import handle_count, get_current_count
+from count_feature import handle_count, handle_count_status, get_current_count
 
 TOKEN = os.getenv("TOKEN")
 CHANNEL_ID = 1488457090304577627
@@ -20,6 +20,11 @@ async def on_message(message):
     if message.author.bot:
         return
 
+    # ⭐ 先處理查詢
+    if await handle_count_status(message, CHANNEL_ID):
+        return
+
+    # ⭐ 再處理數數
     await handle_count(message, CHANNEL_ID)
 
 if not TOKEN:
