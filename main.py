@@ -27,7 +27,7 @@ def save_count(data):
         json.dump(data, f)
 
 data = load_count()
-
+count_lock = asyncio.Lock()
 # ------------------------
 # 安全算式解析
 # ------------------------
@@ -57,29 +57,26 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    # ⭐ 頻道限制（一定要在最前面）
     if message.channel.id != CHANNEL_ID:
         return
 
     content = message.content.strip()
-
     number = safe_eval(content)
     if number is None:
         return
 
-    expected = data["count"] + 1
+    async with count_lock:
+        expected = data["count"] + 1
 
-    if number == expected:
-        data["count"] = number
-        save_count(data)
-        await message.add_reaction("✅")
-        await asyncio.sleep(0.1)
-    else:
-        data["count"] = 0
-        save_count(data)
-        await message.add_reaction("❌")
-        await message.channel.send("敢數錯?咬爆你喔 <a:emoji_R4:1408487451424587897>")
-        await asyncio.sleep(0.1)
+        if number == expected:
+            data["count"] = number
+            save_count(data)
+            await message.add_reaction("✅")
+        else:
+            data["count"] = 0
+            save_count(data)
+            await message.add_reaction("❌")
+            await message.channel.send("敢數錯?咬爆你喔 <a:emoji_R4:1408487451424587897>")
 
 # ------------------------
 client.run(TOKEN)
