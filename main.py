@@ -1,6 +1,8 @@
 import os
 import discord
-from discord.ext import commands
+from discord.ext import tasks
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from discord import app_commands
 from count_feature import handle_count, get_current_count, set_current_count
 
@@ -39,12 +41,43 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
+@tasks.loop(minutes=1)
+async def birthday_check_loop():
+    now = datetime.now(ZoneInfo("Asia/Taipei"))
+
+    # 每天早上 9:00 檢查
+    if now.hour != 12 or now.minute != 10:
+        return
+
+    if already_announced_today():
+        return
+
+    today_birthdays = get_today_birthdays()
+    if not today_birthdays:
+        mark_announced_today()
+        return
+
+    channel = client.get_channel(BIRTHDAY_ANNOUNCE_CHANNEL_ID)
+    if channel is None:
+        print("找不到生日公告頻道")
+        return
+
+    mentions = []
+    for info in today_birthdays:
+        mentions.append(f"<@{info['user_id']}>")
+
+    msg = "今天生日的是：\n" + " ".join(mentions) + "\n生日快樂 🎂"
+    await channel.send(msg)
+
+    mark_announced_today()
 
 @client.event
 async def on_ready():
     print(f"已上線: {client.user}")
     print(f"目前數到: {get_current_count()}")
 
+    if not birthday_check_loop.is_running():
+        birthday_check_loop.start()
 
 @client.event
 async def on_message(message):
@@ -195,7 +228,7 @@ async def test_birthday(interaction: discord.Interaction):
     await channel.send(msg)
 
     await interaction.followup.send("已送出測試訊息", ephemeral=True)
-      
+
 if not TOKEN:
     raise ValueError("TOKEN 沒設")
 
