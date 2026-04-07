@@ -23,7 +23,7 @@ make_birthday_gif(
     "Q36mu2oLOX.jpg",
     "duck-dance.gif",
     "result.gif",
-    gif_size=(400, 400),
+    gif_size=(420, 420),
     pos=(210, 140)
 )
 
@@ -51,7 +51,7 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
-@tasks.loop(time=time(hour=15, minute=15, tzinfo=ZoneInfo("Asia/Taipei")))
+@tasks.loop(time=time(hour=15, minute=22, tzinfo=ZoneInfo("Asia/Taipei")))
 async def birthday_check_loop():
     print("birthday_check_loop triggered")
 
