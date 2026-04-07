@@ -43,7 +43,7 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
-@tasks.loop(time=time(hour=14, minute=29, tzinfo=ZoneInfo("Asia/Taipei")))
+@tasks.loop(time=time(hour=14, minute=53, tzinfo=ZoneInfo("Asia/Taipei")))
 async def birthday_check_loop():
     print("birthday_check_loop triggered")
 
@@ -72,7 +72,7 @@ async def birthday_check_loop():
     title="🎉 生日快樂！",
     color=random.randint(0, 0xFFFFFF)
     )
-    
+
     embed.set_image(url="attachment://result.gif")
     await channel.send(content=mentions, embed=embed, file=file)    
     print("生日公告已送出")
