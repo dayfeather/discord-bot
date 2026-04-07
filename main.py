@@ -19,6 +19,14 @@ from birthday_utils import (
     mark_announced_today,
 )
 
+make_birthday_gif(
+    "Q36mu2oLOX.jpg",
+    "duck-dance.gif",
+    "result.gif",
+    gif_size=(220, 220),
+    pos=(210, 140)
+)
+
 TOKEN = os.getenv("TOKEN")
 CHANNEL_ID = 1488457090304577627
 BIRTHDAY_CHANNEL_ID = 1483251598108004433
