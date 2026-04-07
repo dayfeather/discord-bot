@@ -51,13 +51,13 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
-@tasks.loop(time=time(hour=15, minute=25, tzinfo=ZoneInfo("Asia/Taipei")))
+@tasks.loop(time=time(hour=12, minute=0, tzinfo=ZoneInfo("Asia/Taipei")))
 async def birthday_check_loop():
     print("birthday_check_loop triggered")
 
-    # if already_announced_today():
-    #     print("今天已經公告過了")
-    #     return
+    if already_announced_today():
+        print("今天已經公告過了")
+        return
 
     today_birthdays = get_today_birthdays()
     if not today_birthdays:
