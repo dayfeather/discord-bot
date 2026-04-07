@@ -41,7 +41,7 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
-@tasks.loop(time=time(hour=14, minute=10, tzinfo=ZoneInfo("Asia/Taipei")))
+@tasks.loop(time=time(hour=14, minute=20, tzinfo=ZoneInfo("Asia/Taipei")))
 async def birthday_check_loop():
     print("birthday_check_loop triggered")
 
