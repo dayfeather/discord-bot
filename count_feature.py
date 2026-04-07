@@ -2,7 +2,11 @@ import json
 import os
 import asyncio
 
-DATA_FILE = "count.json"
+DATA_DIR = "/data"
+DATA_FILE = os.path.join(DATA_DIR, "count.json")
+
+os.makedirs(DATA_DIR, exist_ok=True)
+
 count_lock = asyncio.Lock()
 
 def load_count():
@@ -25,8 +29,6 @@ def save_count(data):
 
 data = load_count()
 
-def get_current_count():
-    return data["count"]
 
 async def handle_count(message, channel_id):
     global data
