@@ -1,9 +1,11 @@
 import os
 import discord
+import random
 from discord.ext import tasks
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 from discord import app_commands
+from gif_maker import make_birthday_gif
 from count_feature import handle_count, get_current_count, set_current_count
 
 from birthday_utils import (
@@ -60,15 +62,19 @@ async def birthday_check_loop():
         print("找不到生日公告頻道")
         return
 
+    make_birthday_gif("Q36mu2oLOX.jpg", "duck-dance.gif", "result.gif")
+
+    file = discord.File("result.gif", filename="result.gif")
+
     mentions = " ".join([f"<@{info['user_id']}>" for info in today_birthdays])
 
     embed = discord.Embed(
-        title="🎉 生日快樂！",
-        color=0xFF69B4
+    title="🎉 生日快樂！",
+    color=random.randint(0, 0xFFFFFF)
     )
-    embed.set_image(url="https://media.tenor.com/c-S8cUwVVVEAAAAM/duck-dance.gif")
-
-    await channel.send(content=mentions, embed=embed)
+    
+    embed.set_image(url="attachment://result.gif")
+    await channel.send(content=mentions, embed=embed, file=file)    
     print("生日公告已送出")
     mark_announced_today()
 
