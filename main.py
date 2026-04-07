@@ -30,7 +30,7 @@ make_birthday_gif(
 TOKEN = os.getenv("TOKEN")
 CHANNEL_ID = 1488457090304577627
 BIRTHDAY_CHANNEL_ID = 1483251598108004433
-BIRTHDAY_ANNOUNCE_CHANNEL_ID = 1416757980673736734
+BIRTHDAY_ANNOUNCE_CHANNEL_ID = 1382839237120102443
 # 你的伺服器 ID，這個要換成你自己的
 GUILD_ID = 1382824039847956510
 
@@ -51,7 +51,7 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
-@tasks.loop(time=time(hour=15, minute=22, tzinfo=ZoneInfo("Asia/Taipei")))
+@tasks.loop(time=time(hour=15, minute=25, tzinfo=ZoneInfo("Asia/Taipei")))
 async def birthday_check_loop():
     print("birthday_check_loop triggered")
 
