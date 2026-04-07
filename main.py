@@ -25,7 +25,6 @@ class MyClient(discord.Client):
 
 
 client = MyClient(intents=intents)
-tree = app_commands.CommandTree(client)
 
 
 @client.event
@@ -42,7 +41,7 @@ async def on_message(message):
     await handle_count(message, CHANNEL_ID)
 
 
-@tree.command(name="目前", description="查看現在數到幾")
+@client.tree.command(name="目前")
 async def current_count(interaction: discord.Interaction):
     if interaction.channel_id != CHANNEL_ID:
         await interaction.response.send_message("這個指令只能在數數頻道用。", ephemeral=True)
