@@ -173,7 +173,25 @@ async def birthday_list(interaction: discord.Interaction):
         lines.append(f"{info['name']}：{info['month']}/{info['day']}")
 
     await interaction.response.send_message("\n".join(lines))   
+@client.tree.command(name="測試生日", description="手動測試生日公告")
+async def test_birthday(interaction: discord.Interaction):
+    today_birthdays = get_today_birthdays()
 
+    if not today_birthdays:
+        await interaction.response.send_message("今天沒有人生日", ephemeral=True)
+        return
+
+    channel = client.get_channel(BIRTHDAY_ANNOUNCE_CHANNEL_ID)
+    if channel is None:
+        await interaction.response.send_message("找不到公告頻道", ephemeral=True)
+        return
+
+    mentions = [f"<@{info['user_id']}>" for info in today_birthdays]
+
+    msg = "【測試】今天生日的是：\n" + " ".join(mentions)
+    await channel.send(msg)
+
+    await interaction.response.send_message("已送出測試訊息", ephemeral=True)
 if not TOKEN:
     raise ValueError("TOKEN 沒設")
 
