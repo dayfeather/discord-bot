@@ -41,7 +41,7 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
-@tasks.loop(time=time(hour=14, minute=5, tzinfo=ZoneInfo("Asia/Taipei")))
+@tasks.loop(time=time(hour=14, minute=10, tzinfo=ZoneInfo("Asia/Taipei")))
 async def birthday_check_loop():
     print("birthday_check_loop triggered")
 
@@ -72,7 +72,7 @@ async def birthday_check_loop():
     await channel.send(embed=embed)
     print("生日公告已送出")
     mark_announced_today()
-    
+
 @birthday_check_loop.before_loop
 async def before_birthday_check_loop():
     await client.wait_until_ready()
