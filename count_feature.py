@@ -86,3 +86,11 @@ async def handle_count_status(message, channel_id):
         return True
 
     return False
+def set_current_count(value: int):
+    global data
+    data["count"] = value
+    data["last_user"] = None
+    save_count(data)
+
+def get_current_count():
+    return data["count"]

@@ -1,7 +1,7 @@
 import os
 import discord
 from discord import app_commands
-from count_feature import handle_count, get_current_count
+from count_feature import handle_count, get_current_count, set_current_count
 
 TOKEN = os.getenv("TOKEN")
 CHANNEL_ID = 1488457090304577627
@@ -49,6 +49,30 @@ async def current_count(interaction: discord.Interaction):
 
     await interaction.response.send_message(f"現在數到 {get_current_count()}")
 
+
+@client.tree.command(name="設定數字", description="管理員設定目前數到幾")
+@app_commands.describe(value="要設定成多少")
+@app_commands.default_permissions(manage_guild=True)
+async def set_count(interaction: discord.Interaction, value: int):
+    if interaction.guild is None:
+        await interaction.response.send_message("這個指令只能在伺服器內使用。", ephemeral=True)
+        return
+
+    if not interaction.user.guild_permissions.manage_guild:
+        await interaction.response.send_message("你沒有權限使用這個指令。", ephemeral=True)
+        return
+
+    if interaction.channel_id != CHANNEL_ID:
+        await interaction.response.send_message("這個指令只能在數數頻道用。", ephemeral=True)
+        return
+
+    if value < 0:
+        await interaction.response.send_message("不能設定成負數。", ephemeral=True)
+        return
+
+    set_current_count(value)
+    await interaction.response.send_message(f"已將目前數字設定為 {value}")
+    
 
 if not TOKEN:
     raise ValueError("TOKEN 沒設")
