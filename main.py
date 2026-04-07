@@ -10,11 +10,15 @@ from birthday_utils import (
     get_birthday,
     delete_birthday,
     get_all_birthdays,
+    get_today_birthdays,
+    already_announced_today,
+    mark_announced_today,
 )
 
 TOKEN = os.getenv("TOKEN")
 CHANNEL_ID = 1488457090304577627
 BIRTHDAY_CHANNEL_ID = 1483251598108004433
+BIRTHDAY_ANNOUNCE_CHANNEL_ID = 1416757980673736734
 # 你的伺服器 ID，這個要換成你自己的
 GUILD_ID = 1382824039847956510
 
