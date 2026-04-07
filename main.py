@@ -14,8 +14,11 @@ intents.message_content = True
 
 
 class MyClient(discord.Client):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.tree = app_commands.CommandTree(self)  # ⭐這行就是你缺的
+
     async def setup_hook(self):
-        # 只同步到這個 guild，測試最快
         guild = discord.Object(id=GUILD_ID)
         self.tree.copy_global_to(guild=guild)
         await self.tree.sync(guild=guild)
