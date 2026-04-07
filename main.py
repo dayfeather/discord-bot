@@ -50,7 +50,7 @@ async def birthday_check_loop():
         return
 
     if already_announced_today():
-        return
+        return 
 
     today_birthdays = get_today_birthdays()
     if not today_birthdays:
