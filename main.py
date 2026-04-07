@@ -1,7 +1,7 @@
 import os
 import discord
 from discord.ext import tasks
-from datetime import datetime
+from datetime import datetime, time
 from zoneinfo import ZoneInfo
 from discord import app_commands
 from count_feature import handle_count, get_current_count, set_current_count
@@ -41,19 +41,17 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
-@tasks.loop(minutes=1)
+@tasks.loop(time=time(hour=14, minute=5, tzinfo=ZoneInfo("Asia/Taipei")))
 async def birthday_check_loop():
-    now = datetime.now(ZoneInfo("Asia/Taipei"))
-
-    # 每天早上 9:00 檢查
-    if now.hour != 12 or now.minute != 52:
-        return
+    print("birthday_check_loop triggered")
 
     if already_announced_today():
-        return 
+        print("今天已經公告過了")
+        return
 
     today_birthdays = get_today_birthdays()
     if not today_birthdays:
+        print("今天沒有人生日")
         mark_announced_today()
         return
 
@@ -62,20 +60,23 @@ async def birthday_check_loop():
         print("找不到生日公告頻道")
         return
 
-    mentions = []
-    for info in today_birthdays:
-        mentions.append(f"<@{info['user_id']}>")
+    mentions = [f"<@{info['user_id']}>" for info in today_birthdays]
 
     embed = discord.Embed(
-    title="🎉 生日快樂！",
-    description=" ".join(mentions),
-    color=0xFF69B4
+        title="🎉 生日快樂！",
+        description=" ".join(mentions),
+        color=0xFF69B4
     )
-
     embed.set_image(url="https://media1.tenor.com/m/BpjNordrg4oAAAAC/%E8%B0%A2%E8%B0%A2-%E6%99%9A%E5%AE%89.gif")
 
     await channel.send(embed=embed)
+    print("生日公告已送出")
     mark_announced_today()
+    
+@birthday_check_loop.before_loop
+async def before_birthday_check_loop():
+    await client.wait_until_ready()
+    print("birthday_check_loop ready")
 
 @client.event
 async def on_ready():
