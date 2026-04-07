@@ -9,6 +9,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 
 count_lock = asyncio.Lock()
 
+
 def load_count():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
@@ -20,14 +21,20 @@ def load_count():
         data["last_user"] = None
 
     save_count(data)
-    print(f"[load_count] data={data}")
+    print(f"[load_count] file={DATA_FILE} data={data}")
     return data
+
 
 def save_count(data):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f)
+        json.dump(data, f, ensure_ascii=False)
+
 
 data = load_count()
+
+
+def get_current_count():
+    return data["count"]
 
 
 async def handle_count(message, channel_id):
@@ -49,7 +56,7 @@ async def handle_count(message, channel_id):
         last_user = data.get("last_user")
 
         print(
-            f"[handle_count] msg={content}, user_id={user_id}, "
+            f"[handle_count] file={DATA_FILE}, msg={content}, user_id={user_id}, "
             f"last_user={last_user}, expected={expected}, data={data}"
         )
 
@@ -74,8 +81,7 @@ async def handle_count(message, channel_id):
 
             await message.add_reaction("❌")
             await message.channel.send("敢數錯?咬爆你喔 <a:emoji_R4:1408487451424587897>")
-def get_current_count():
-    return data["count"]
+
 
 async def handle_count_status(message, channel_id):
     if message.channel.id != channel_id:
@@ -88,11 +94,10 @@ async def handle_count_status(message, channel_id):
         return True
 
     return False
+
+
 def set_current_count(value: int):
     global data
     data["count"] = value
     data["last_user"] = None
     save_count(data)
-
-def get_current_count():
-    return data["count"]

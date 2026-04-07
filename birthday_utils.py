@@ -1,7 +1,10 @@
 import json
 import os
 
-BIRTHDAY_FILE = "birthdays.json"
+DATA_DIR = "/data"
+BIRTHDAY_FILE = os.path.join(DATA_DIR, "birthdays.json")
+
+os.makedirs(DATA_DIR, exist_ok=True)
 
 
 def load_birthdays():
