@@ -46,7 +46,7 @@ async def birthday_check_loop():
     now = datetime.now(ZoneInfo("Asia/Taipei"))
 
     # 每天早上 9:00 檢查
-    if now.hour != 12 or now.minute != 21:
+    if now.hour != 12 or now.minute != 24:
         return
 
     if already_announced_today():
