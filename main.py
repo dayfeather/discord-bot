@@ -46,7 +46,7 @@ async def birthday_check_loop():
     now = datetime.now(ZoneInfo("Asia/Taipei"))
 
     # 每天早上 9:00 檢查
-    if now.hour != 12 or now.minute != 10:
+    if now.hour != 12 or now.minute != 21:
         return
 
     if already_announced_today():
@@ -66,9 +66,15 @@ async def birthday_check_loop():
     for info in today_birthdays:
         mentions.append(f"<@{info['user_id']}>")
 
-    msg = "今天生日的是：\n" + " ".join(mentions) + "\n生日快樂 🎂"
-    await channel.send(msg)
+    embed = discord.Embed(
+    title="🎉 生日快樂！",
+    description=" ".join(mentions),
+    color=0xFF69B4
+    )
 
+    embed.set_image(url="https://media1.tenor.com/m/BpjNordrg4oAAAAC/%E8%B0%A2%E8%B0%A2-%E6%99%9A%E5%AE%89.gif")
+
+    await channel.send(embed=embed)
     mark_announced_today()
 
 @client.event
