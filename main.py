@@ -41,7 +41,7 @@ class MyClient(discord.Client):
 
 client = MyClient(intents=intents)
 
-@tasks.loop(time=time(hour=14, minute=20, tzinfo=ZoneInfo("Asia/Taipei")))
+@tasks.loop(time=time(hour=14, minute=23, tzinfo=ZoneInfo("Asia/Taipei")))
 async def birthday_check_loop():
     print("birthday_check_loop triggered")
 
@@ -60,16 +60,15 @@ async def birthday_check_loop():
         print("找不到生日公告頻道")
         return
 
-    mentions = [f"<@{info['user_id']}>" for info in today_birthdays]
+    mentions = " ".join([f"<@{info['user_id']}>" for info in today_birthdays])
 
     embed = discord.Embed(
         title="🎉 生日快樂！",
-        description=" ".join(mentions),
         color=0xFF69B4
     )
-    embed.set_image(url="https://media1.tenor.com/m/BpjNordrg4oAAAAC/%E8%B0%A2%E8%B0%A2-%E6%99%9A%E5%AE%89.gif")
+    embed.set_image(url="https://media.giphy.com/media/g5R9dok94mrIvplmZd/giphy.gif")
 
-    await channel.send(embed=embed)
+    await channel.send(content=mentions, embed=embed)
     print("生日公告已送出")
     mark_announced_today()
 
