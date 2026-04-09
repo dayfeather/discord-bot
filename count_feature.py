@@ -79,6 +79,7 @@ async def handle_count(message, channel_id):
         if number == data["count"] and (now - last_time <= 30):
             await message.add_reaction("⚠️")
             await message.channel.send("慢了一步 😆")
+            await message.channel.send("你好棒👍數對了")
             return
 
         # 其他錯誤才重製
