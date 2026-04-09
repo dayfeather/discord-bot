@@ -73,13 +73,14 @@ async def handle_count(message, channel_id):
             print(f"[success] data={data}")
 
             await message.add_reaction("✅")
+            await message.channel.send("你好棒👍數對了")
             return
 
         # 30 秒內重複上一個已成功的數字：算慢一步，不重製
         if number == data["count"] and (now - last_time <= 30):
             await message.add_reaction("⚠️")
             await message.channel.send("慢了一步 😆")
-            await message.channel.send("你好棒👍數對了")
+
             return
 
         # 其他錯誤才重製
