@@ -249,6 +249,24 @@ async def test_birthday(interaction: discord.Interaction):
 
     await interaction.followup.send("已送出測試訊息", ephemeral=True)
 
+@bot.command()
+async def dump(ctx):
+    if ctx.author.id != 666918563856121886:
+        return
+
+    import os
+
+    files = ["/data/count.json", "/data/birthdays.json", "/data/birthday_state.json"]
+
+    for file in files:
+        if os.path.exists(file):
+            with open(file, "r", encoding="utf-8") as f:
+                data = f.read()
+
+            await ctx.author.send(f"{file}:\n```json\n{data[:1900]}\n```")
+        else:
+            await ctx.author.send(f"{file} 不存在")
+
 if not TOKEN:
     raise ValueError("TOKEN 沒設")
 
