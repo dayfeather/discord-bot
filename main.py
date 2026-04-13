@@ -37,7 +37,7 @@ GUILD_ID = 1382824039847956510
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix="!")
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 class MyClient(discord.Client):
     def __init__(self, **kwargs):
