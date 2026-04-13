@@ -1,7 +1,7 @@
 import os
 import discord
 import random
-from discord.ext import tasks
+from discord.ext import tasks ,commands
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 from discord import app_commands
@@ -37,6 +37,7 @@ GUILD_ID = 1382824039847956510
 intents = discord.Intents.default()
 intents.message_content = True
 
+bot = commands.Bot(command_prefix="!")
 
 class MyClient(discord.Client):
     def __init__(self, **kwargs):
