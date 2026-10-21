@@ -144,7 +144,11 @@ async def set_count(interaction: discord.Interaction, value: int):
     await interaction.response.send_message(f"已將目前數字設定為 {value}")
 @client.tree.command(name="生日登記", description="登記你的生日")
 @app_commands.describe(月="生日月份", 日="生日日期")
-async def birthday_register(interaction: discord.Interaction, 月: int, 日: int):
+async def birthday_register(
+    interaction: discord.Interaction,
+    月: int,
+    日: int
+):
     if interaction.channel_id != BIRTHDAY_CHANNEL_ID:
         await interaction.response.send_message(
             "這個指令只能在生日登記頻道用。",
@@ -159,19 +163,37 @@ async def birthday_register(interaction: discord.Interaction, 月: int, 日: int
         )
         return
 
-    register_birthday(interaction.user.id, interaction.user.display_name, 月, 日)
+    await interaction.response.defer(ephemeral=True)
 
-    await interaction.response.send_message(
-        f"登記成功，你的生日是 {月}/{日} 🎂"
+        await interaction.response.defer(ephemeral=True)
+
+    register_birthday(
+        成員.id,
+        成員.display_name,
+        月,
+        日
     )
-    data = get_all_birthdays()
 
-    sorted_birthdays = sorted(
-        data.values(),
-        key=lambda info: (int(info["month"]), int(info["day"]))
+    try:
+        await refresh_birthday_list(interaction.channel)
+    except Exception as error:
+        print(f"更新生日列表失敗：{error}")
+        await interaction.edit_original_response(
+            content="生日已儲存，但列表更新失敗，請查看日誌。"
+        )
+        return
+
+    await interaction.edit_original_response(
+        content=f"已替 {成員.display_name} 登記生日：{月}/{日} 🎂",
+        allowed_mentions=discord.AllowedMentions.none()
     )
 
-BIRTHDAY_LIST_STATE_FILE = "/data/birthday_list_messages.json"
+    await asyncio.sleep(10)
+
+    try:
+        await interaction.delete_original_response()
+    except discord.NotFound:
+        pass
 birthday_list_lock = asyncio.Lock()
 
 
