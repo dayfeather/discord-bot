@@ -163,7 +163,69 @@ async def birthday_register(interaction: discord.Interaction, 月: int, 日: int
         f"登記成功，你的生日是 {月}/{日} 🎂"
     )
 
+@client.tree.command(name="幫人登記生日", description="管理員替成員登記或修改生日")
+@app_commands.guild_only()
+@app_commands.default_permissions(administrator=True)
+@app_commands.checks.has_permissions(administrator=True)
+@app_commands.describe(
+    成員="要登記生日的成員",
+    月="生日月份",
+    日="生日日期"
+)
+async def register_member_birthday(
+    interaction: discord.Interaction,
+    成員: discord.Member,
+    月: int,
+    日: int
+):
+    if interaction.channel_id != BIRTHDAY_CHANNEL_ID:
+        await interaction.response.send_message(
+            "這個指令只能在生日登記頻道用。",
+            ephemeral=True
+        )
+        return
 
+    if 成員.bot:
+        await interaction.response.send_message(
+            "不能替機器人登記生日。",
+            ephemeral=True
+        )
+        return
+
+    if not is_valid_birthday(月, 日):
+        await interaction.response.send_message(
+            "生日格式不合法，請重新輸入。",
+            ephemeral=True
+        )
+        return
+
+    register_birthday(
+        成員.id,
+        成員.display_name,
+        月,
+        日
+    )
+
+    await interaction.response.send_message(
+        f"已替 {成員.mention} 登記生日：{月}/{日} 🎂",
+        allowed_mentions=discord.AllowedMentions.none()
+    )
+
+
+@register_member_birthday.error
+async def register_member_birthday_error(
+    interaction: discord.Interaction,
+    error: app_commands.AppCommandError
+):
+    if isinstance(error, app_commands.MissingPermissions):
+        await interaction.response.send_message(
+            "只有管理員可以替其他成員登記生日。",
+            ephemeral=True
+        )
+        return
+
+    raise error
+    
 @client.tree.command(name="我的生日", description="查看自己登記的生日")
 async def my_birthday(interaction: discord.Interaction):
     info = get_birthday(interaction.user.id)
