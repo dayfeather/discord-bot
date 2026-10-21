@@ -45,7 +45,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 class MyClient(discord.Client):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.tree = app_commands.CommandTree(self)  # ⭐這行就是你缺的
+        self.tree = app_commands.CommandTree(self)  
 
     async def setup_hook(self):
         guild = discord.Object(id=GUILD_ID)
