@@ -262,63 +262,6 @@ async def refresh_birthday_list(channel):
             remaining_old_ids.remove(message_id)
             state[channel_key] = remaining_old_ids + new_ids
             save_birthday_list_state(state)
-
-
-@client.tree.command(name="生日登記", description="登記你的生日")
-@app_commands.describe(月="生日月份", 日="生日日期")
-async def birthday_register(
-    interaction: discord.Interaction,
-    月: int,
-    日: int
-):
-    if interaction.channel_id != BIRTHDAY_CHANNEL_ID:
-        await interaction.response.send_message(
-            "這個指令只能在生日登記頻道用。",
-            ephemeral=True
-        )
-        return
-
-    if not is_valid_birthday(月, 日):
-        await interaction.response.send_message(
-            "生日格式不合法，請重新輸入。",
-            ephemeral=True
-        )
-        return
-
-    # 先回應，避免更新列表時超過指令回應期限
-    await interaction.response.defer(ephemeral=True)
-
-    register_birthday(
-        interaction.user.id,
-        interaction.user.display_name,
-        月,
-        日
-    )
-
-    try:
-        await refresh_birthday_list(interaction.channel)
-    except Exception as error:
-        print(f"更新生日列表失敗：{error}")
-
-        await interaction.edit_original_response(
-            content=(
-                f"生日已儲存：{月}/{日} 🎂\n"
-                "但列表更新失敗，請通知管理員查看日誌。"
-            )
-        )
-        return
-
-    await interaction.edit_original_response(
-        content=f"登記成功，你的生日是 {月}/{日} 🎂"
-    )
-
-    # 10 秒後移除本人看到的成功通知
-    await asyncio.sleep(10)
-
-    try:
-        await interaction.delete_original_response()
-    except discord.NotFound:
-        pass
         
 @client.tree.command(name="幫人登記生日", description="管理員替成員登記或修改生日")
 @app_commands.guild_only()
