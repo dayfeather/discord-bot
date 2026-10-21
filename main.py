@@ -1,6 +1,8 @@
 import os
 import discord
 import random
+import asyncio
+import json
 from discord.ext import tasks ,commands
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
@@ -162,7 +164,162 @@ async def birthday_register(interaction: discord.Interaction, 月: int, 日: int
     await interaction.response.send_message(
         f"登記成功，你的生日是 {月}/{日} 🎂"
     )
+    data = get_all_birthdays()
 
+    sorted_birthdays = sorted(
+        data.values(),
+        key=lambda info: (int(info["month"]), int(info["day"]))
+    )
+
+BIRTHDAY_LIST_STATE_FILE = "/data/birthday_list_messages.json"
+birthday_list_lock = asyncio.Lock()
+
+
+def save_birthday_list_state(state):
+    os.makedirs("/data", exist_ok=True)
+
+    temporary_file = BIRTHDAY_LIST_STATE_FILE + ".tmp"
+
+    with open(temporary_file, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
+
+    os.replace(temporary_file, BIRTHDAY_LIST_STATE_FILE)
+
+
+async def refresh_birthday_list(channel):
+    # 避免多人同時登記時，列表重複出現
+    async with birthday_list_lock:
+        try:
+            with open(
+                BIRTHDAY_LIST_STATE_FILE, "r", encoding="utf-8"
+            ) as f:
+                state = json.load(f)
+        except FileNotFoundError:
+            state = {}
+
+        channel_key = str(channel.id)
+        old_ids = state.get(channel_key, [])
+
+        data = get_all_birthdays()
+
+        sorted_birthdays = sorted(
+            data.values(),
+            key=lambda info: (
+                int(info["month"]),
+                int(info["day"])
+            )
+        )
+
+        pages = []
+        text = "🎂 最新生日列表\n"
+
+        for info in sorted_birthdays:
+            month = int(info["month"])
+            day = int(info["day"])
+            name = discord.utils.escape_markdown(
+                str(info["name"])
+                .replace("\n", " ")
+                .replace("\r", " ")
+            )
+
+            line = f"`{month:02d}/{day:02d}` ｜ {name}\n"
+
+            if len(text) + len(line) > 1900:
+                pages.append(text)
+                text = ""
+
+            text += line
+
+        if not sorted_birthdays:
+            text += "目前還沒有人登記生日。"
+
+        if text:
+            pages.append(text)
+
+        # 先發送新版，成功後再刪除舊版
+        new_ids = []
+
+        # 同時記錄新舊訊息，途中失敗時仍能在下次清理
+        for page in pages:
+            message = await channel.send(
+                page,
+                allowed_mentions=discord.AllowedMentions.none()
+            )
+
+            new_ids.append(message.id)
+            state[channel_key] = old_ids + new_ids
+            save_birthday_list_state(state)
+
+        remaining_old_ids = list(old_ids)
+
+        for message_id in old_ids:
+            try:
+                message = await channel.fetch_message(int(message_id))
+                await message.delete()
+            except discord.NotFound:
+                pass
+
+            remaining_old_ids.remove(message_id)
+            state[channel_key] = remaining_old_ids + new_ids
+            save_birthday_list_state(state)
+
+
+@client.tree.command(name="生日登記", description="登記你的生日")
+@app_commands.describe(月="生日月份", 日="生日日期")
+async def birthday_register(
+    interaction: discord.Interaction,
+    月: int,
+    日: int
+):
+    if interaction.channel_id != BIRTHDAY_CHANNEL_ID:
+        await interaction.response.send_message(
+            "這個指令只能在生日登記頻道用。",
+            ephemeral=True
+        )
+        return
+
+    if not is_valid_birthday(月, 日):
+        await interaction.response.send_message(
+            "生日格式不合法，請重新輸入。",
+            ephemeral=True
+        )
+        return
+
+    # 先回應，避免更新列表時超過指令回應期限
+    await interaction.response.defer(ephemeral=True)
+
+    register_birthday(
+        interaction.user.id,
+        interaction.user.display_name,
+        月,
+        日
+    )
+
+    try:
+        await refresh_birthday_list(interaction.channel)
+    except Exception as error:
+        print(f"更新生日列表失敗：{error}")
+
+        await interaction.edit_original_response(
+            content=(
+                f"生日已儲存：{月}/{日} 🎂\n"
+                "但列表更新失敗，請通知管理員查看日誌。"
+            )
+        )
+        return
+
+    await interaction.edit_original_response(
+        content=f"登記成功，你的生日是 {月}/{日} 🎂"
+    )
+
+    # 10 秒後移除本人看到的成功通知
+    await asyncio.sleep(10)
+
+    try:
+        await interaction.delete_original_response()
+    except discord.NotFound:
+        pass
+        
 @client.tree.command(name="幫人登記生日", description="管理員替成員登記或修改生日")
 @app_commands.guild_only()
 @app_commands.default_permissions(administrator=True)
