@@ -36,6 +36,7 @@ GUILD_ID = 1382824039847956510
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -304,4 +305,15 @@ async def dump(ctx):
 if not TOKEN:
     raise ValueError("TOKEN 沒設")
 
+@client.event
+async def on_member_remove(member: discord.Member):
+    # 只處理你的伺服器
+    if member.guild.id != GUILD_ID:
+        return
+
+    deleted = delete_birthday(member.id)
+
+    if deleted:
+        print(f"成員離開，已刪除生日：{member.display_name}")
+        
 client.run(TOKEN)
