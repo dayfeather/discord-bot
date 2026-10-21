@@ -222,11 +222,19 @@ async def birthday_list(interaction: discord.Interaction):
         )
         return
 
-    lines = []
-    for _, info in data.items():
-        lines.append(f"{info['name']}：{info['month']}/{info['day']}")
+        # 先依月份排序，同月份再依日期排序
+    sorted_birthdays = sorted(
+        data.values(),
+        key=lambda info: (int(info["month"]), int(info["day"]))
+    )
 
-    await interaction.response.send_message("\n".join(lines))  
+    lines = []
+    for info in sorted_birthdays:
+        lines.append(
+            f"{info['name']}：{info['month']}/{info['day']}"
+        )
+
+    await interaction.response.send_message("\n".join(lines))
 
 @client.tree.command(name="測試生日", description="手動測試生日公告")
 async def test_birthday(interaction: discord.Interaction):
