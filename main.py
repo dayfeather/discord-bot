@@ -209,7 +209,7 @@ def save_birthday_list_state(state):
 
 
 async def refresh_birthday_list(channel):
-    # 避免多人同時登記時，列表重複出現
+
     async with birthday_list_lock:
         try:
             with open(
