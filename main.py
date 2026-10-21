@@ -222,19 +222,44 @@ async def birthday_list(interaction: discord.Interaction):
         )
         return
 
-        # 先依月份排序，同月份再依日期排序
+    # 先依月份排序，同月份再依日期排序
     sorted_birthdays = sorted(
         data.values(),
         key=lambda info: (int(info["month"]), int(info["day"]))
     )
 
-    lines = []
+    pages = []
+    text = "🎂 生日列表\n"
+
     for info in sorted_birthdays:
-        lines.append(
-            f"{info['name']}：{info['month']}/{info['day']}"
+        month = int(info["month"])
+        day = int(info["day"])
+        name = discord.utils.escape_markdown(
+            str(info["name"]).replace("\n", " ").replace("\r", " ")
         )
 
-    await interaction.response.send_message("\n".join(lines))
+        line = f"`{month:02d}/{day:02d}` ｜ {name}\n"
+
+        # 過長時分成多則訊息
+        if len(text) + len(line) > 1900:
+            pages.append(text)
+            text = ""
+
+        text += line
+
+    if text:
+        pages.append(text)
+
+    await interaction.response.send_message(
+        pages[0],
+        allowed_mentions=discord.AllowedMentions.none()
+    )
+
+    for page in pages[1:]:
+        await interaction.followup.send(
+            page,
+            allowed_mentions=discord.AllowedMentions.none()
+        )
 
 @client.tree.command(name="測試生日", description="手動測試生日公告")
 async def test_birthday(interaction: discord.Interaction):
