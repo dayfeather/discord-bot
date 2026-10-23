@@ -35,6 +35,8 @@ BIRTHDAY_CHANNEL_ID = 1562358080304324718
 BIRTHDAY_ANNOUNCE_CHANNEL_ID = 1382839237120102443
 # 你的伺服器 ID，這個要換成你
 GUILD_ID = 1382824039847956510
+BIRTHDAY_LIST_STATE_FILE = "/data/birthday_list_messages.json"
+birthday_list_lock = asyncio.Lock()
 
 intents = discord.Intents.default()
 intents.message_content = True
