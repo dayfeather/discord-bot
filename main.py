@@ -165,11 +165,9 @@ async def birthday_register(
 
     await interaction.response.defer(ephemeral=True)
 
-        await interaction.response.defer(ephemeral=True)
-
     register_birthday(
-        成員.id,
-        成員.display_name,
+        interaction.user.id,
+        interaction.user.display_name,
         月,
         日
     )
@@ -179,13 +177,12 @@ async def birthday_register(
     except Exception as error:
         print(f"更新生日列表失敗：{error}")
         await interaction.edit_original_response(
-            content="生日已儲存，但列表更新失敗，請查看日誌。"
+            content=f"生日已儲存：{月}/{日}，但列表更新失敗，請通知管理員。"
         )
         return
 
     await interaction.edit_original_response(
-        content=f"已替 {成員.display_name} 登記生日：{月}/{日} 🎂",
-        allowed_mentions=discord.AllowedMentions.none()
+        content=f"登記成功，你的生日是 {月}/{日} 🎂"
     )
 
     await asyncio.sleep(10)
