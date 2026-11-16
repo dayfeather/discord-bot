@@ -499,4 +499,7 @@ async def on_member_remove(member: discord.Member):
     if deleted:
         print(f"成員離開，已刪除生日：{member.display_name}")
         
-client.run(TOKEN)
+if __name__ == "__main__":
+    from startup import run_with_backoff
+
+    run_with_backoff(client, TOKEN)
