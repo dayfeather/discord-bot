@@ -53,6 +53,15 @@ class StartupTests(unittest.TestCase):
             run_with_backoff(client, "test-token")
         client.run.assert_not_called()
 
+    @patch.dict(os.environ, {"DISCORD_INITIAL_RETRY_AT": "5000"})
+    @patch("startup.time.time", return_value=1000)
+    @patch("startup.time.sleep")
+    def test_first_deployment_preserves_previous_deadline(self, sleep, clock):
+        client = Mock()
+        run_with_backoff(client, "test-token")
+        sleep.assert_called_once_with(4000)
+        self.assertEqual(load_cooldown(self.state_path), (5000, 300))
+
     @patch.dict(os.environ, {}, clear=True)
     @patch("startup.os.execv")
     @patch("startup.random.uniform", return_value=0)

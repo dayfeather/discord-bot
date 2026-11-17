@@ -59,6 +59,13 @@ def run_with_backoff(client, token):
     """Retry only rate limits and server errors; invalid credentials still fail."""
     path = cooldown_path()
     deadline, persisted_delay = load_cooldown(path)
+    # Bootstrap the first deployment from the previous version's logged deadline.
+    initial_deadline = float(os.environ.get("DISCORD_INITIAL_RETRY_AT", "0"))
+    if not math.isfinite(initial_deadline) or initial_deadline < 0:
+        raise ValueError("初始登入冷卻期限格式錯誤。")
+    if initial_deadline > deadline:
+        deadline = initial_deadline
+        save_cooldown(path, deadline, persisted_delay)
     delay = min(max(int(os.environ.get("DISCORD_STARTUP_BACKOFF", str(persisted_delay))), 300), 1800)
     remaining = deadline - time.time()
     if remaining > 0:
