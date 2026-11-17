@@ -2,7 +2,9 @@
 
 import logging
 import math
+import os
 import random
+import sys
 import time
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -26,7 +28,7 @@ def retry_after_seconds(error):
 
 def run_with_backoff(client, token):
     """Retry only rate limits and server errors; invalid credentials still fail."""
-    delay = 300
+    delay = min(max(int(os.environ.get("DISCORD_STARTUP_BACKOFF", "300")), 300), 1800)
     while True:
         try:
             client.run(token)
@@ -38,6 +40,8 @@ def run_with_backoff(client, token):
             # Do not log the exception body: Cloudflare returns a full HTML page.
             log.warning("Discord 暫時無法登入（HTTP %s），等待 %.0f 秒後重試。", error.status, wait)
             time.sleep(wait)
-            # run() closes the client and its event loop, including background tasks.
-            client.clear()
-            delay = min(delay * 2, 1800)
+            # clear() does not reset discord.py's closed aiohttp connector.
+            # Replace this process after the cooldown to rebuild all network state.
+            os.environ["DISCORD_STARTUP_BACKOFF"] = str(min(delay * 2, 1800))
+            os.execv(sys.executable, [sys.executable, *sys.argv])
+            return
